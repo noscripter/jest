@@ -17,7 +17,7 @@ import type {FarmOptions} from './types';
 import type {Readable} from 'stream';
 
 import {CHILD_MESSAGE_CALL, CHILD_MESSAGE_END} from './types';
-import Worker from './worker';
+import Worker from './Worker';
 
 /* istanbul ignore next */
 const emptyMethod = () => {};
@@ -57,7 +57,7 @@ export default class {
   _offset: number;
 
   constructor(workerPath: string, options?: FarmOptions = {}) {
-    const numWorkers = options.numWorkers || os.cpus().length - 1;
+    const numWorkers = options.numWorkers || Math.max(os.cpus().length - 1, 1);
     const workers = new Array(numWorkers);
     const stdout = mergeStream();
     const stderr = mergeStream();
@@ -69,6 +69,7 @@ export default class {
     const sharedWorkerOptions = {
       forkOptions: options.forkOptions || {},
       maxRetries: options.maxRetries || 3,
+      setupArgs: options.setupArgs || [],
       workerPath,
     };
 
